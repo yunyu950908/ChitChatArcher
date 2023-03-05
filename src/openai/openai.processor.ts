@@ -2,9 +2,9 @@ import { Process, Processor } from '@nestjs/bull'
 import { Logger } from '@nestjs/common'
 import { Job } from 'bull'
 
-@Processor('chat')
-export class ChatProcessor {
-  private readonly logger = new Logger(ChatProcessor.name)
+@Processor('openai')
+export class OpenAIProcessor {
+  private readonly logger = new Logger(OpenAIProcessor.name)
 
   @Process({ name: 'unofficial', concurrency: 1 })
   handleUnofficialCall(job: Job) {

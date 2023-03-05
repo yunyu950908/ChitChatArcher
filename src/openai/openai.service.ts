@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { HttpsProxyAgent } from 'hpagent'
 import _ from 'lodash'
 import * as moment from 'moment'
@@ -11,8 +11,10 @@ import {
 import axios, { AxiosResponse } from 'axios'
 import * as assert from 'node:assert'
 import { validate } from 'uuid'
+import { InjectQueue } from '@nestjs/bull'
+import { Queue } from 'bull'
 
-interface UnofficialChatGPTAsk {
+export interface UnofficialChatGPTAsk {
   prompt?: string
   message?: string
   conversation_id?: string
@@ -26,6 +28,8 @@ interface UnofficialChatGPTResp<T = null> {
 
 @Injectable()
 export class OpenaiService {
+  private readonly logger = new Logger(OpenaiService.name)
+
   private readonly apiTimeout = moment.duration(30, 'seconds').asMilliseconds()
 
   private readonly httpsAgent = process.env.HTTPS_PROXY_AGENT
@@ -47,7 +51,7 @@ export class OpenaiService {
     secret: process.env.UNOFFICIAL_CHATGPT_API_SECRET,
   }
 
-  constructor() {
+  constructor(@InjectQueue('openai') private readonly openaiQueue: Queue) {
     const keys = (process.env.OPENAI_KEYS || '').split(',')
     for (const apiKey of keys) {
       const configuration = new Configuration({ apiKey })
@@ -111,4 +115,18 @@ export class OpenaiService {
     const resp: AxiosResponse<UnofficialChatGPTResp> = await axios.get(url)
     return resp.data
   }
+
+  async appendUnofficial(params: UnofficialChatGPTAsk & { userId?: string }) {
+    const { userId = 'guest', prompt, conversation_id, parent_id } = params
+    const result = await this.openaiQueue.add('unofficial', {
+      userId,
+      prompt,
+      conversation_id,
+      parent_id,
+    })
+    this.logger.debug(`returned from add job: ${result.id}`)
+    return result.id
+  }
+
+  async appendOfficial() {}
 }

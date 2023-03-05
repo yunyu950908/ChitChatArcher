@@ -116,10 +116,19 @@ export class OpenaiService {
     return resp.data
   }
 
-  async appendUnofficial(params: UnofficialChatGPTAsk & { userId?: string }) {
-    const { userId = 'guest', prompt, conversation_id, parent_id } = params
+  async appendUnofficial(
+    params: UnofficialChatGPTAsk & { userId?: string; notifyURL?: string },
+  ) {
+    const {
+      userId = 'guest',
+      notifyURL = 'http://localhost:3000/openai/notify/garbage',
+      prompt,
+      conversation_id,
+      parent_id,
+    } = params
     const result = await this.openaiQueue.add('unofficial', {
       userId,
+      notifyURL,
       prompt,
       conversation_id,
       parent_id,

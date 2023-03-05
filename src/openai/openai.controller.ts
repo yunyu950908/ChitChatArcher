@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Logger,
   Post,
   Res,
 } from '@nestjs/common'
@@ -10,6 +11,8 @@ import { OpenaiService, UnofficialChatGPTAsk } from './openai.service'
 
 @Controller('openai')
 export class OpenaiController {
+  private readonly logger = new Logger(OpenaiController.name)
+
   constructor(private readonly openaiService: OpenaiService) {}
 
   @Post('unofficial/ask')
@@ -32,4 +35,9 @@ export class OpenaiController {
   }
 
   async chatWithOfficial() {}
+
+  @Post('notify/garbage')
+  receiveNotify(@Body() data: any) {
+    this.logger.debug(`[notify/garbage]: ${JSON.stringify(data)}`)
+  }
 }

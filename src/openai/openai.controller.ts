@@ -5,7 +5,7 @@ import {
   Post,
   Res,
 } from '@nestjs/common'
-import assert from 'assert'
+import * as assert from 'assert'
 import { OpenaiService, UnofficialChatGPTAsk } from './openai.service'
 
 @Controller('openai')

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { HttpsProxyAgent } from 'hpagent'
 import _ from 'lodash'
-import * as moment from 'moment'
+import moment from 'moment'
 import {
   ChatCompletionRequestMessage,
   Configuration,
@@ -9,7 +9,7 @@ import {
   OpenAIApi,
 } from 'openai'
 import axios, { AxiosResponse } from 'axios'
-import * as assert from 'node:assert'
+import assert from 'assert'
 import { validate } from 'uuid'
 import { InjectQueue } from '@nestjs/bull'
 import { Queue } from 'bull'

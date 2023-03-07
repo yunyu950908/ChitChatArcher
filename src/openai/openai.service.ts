@@ -13,6 +13,7 @@ import * as assert from 'node:assert'
 import { validate } from 'uuid'
 import { InjectQueue } from '@nestjs/bull'
 import { Queue } from 'bull'
+import { GotClient } from '../utils/got-client'
 
 export interface UnofficialChatGPTAsk {
   prompt?: string
@@ -87,33 +88,44 @@ export class OpenaiService {
       !parent_id || validate(parent_id),
       `Invalid parent_id: ${parent_id}`,
     )
-    const resp: AxiosResponse<UnofficialChatGPTResp<UnofficialChatGPTAsk>> =
-      await axios.post(
-        url,
-        {
-          prompt,
-          conversation_id,
-          parent_id,
-        },
-        { httpsAgent: this.httpsAgent },
-      )
-    return resp.data
+    // const { data }: AxiosResponse<UnofficialChatGPTResp<UnofficialChatGPTAsk>> =
+    //   await axios.post(
+    //     url,
+    //     {
+    //       prompt,
+    //       conversation_id,
+    //       parent_id,
+    //     },
+    //     { httpsAgent: this.httpsAgent },
+    //   )
+    const data = await GotClient.post(url, {
+      json: {
+        prompt,
+        conversation_id,
+        parent_id,
+      },
+    }).json<UnofficialChatGPTResp<UnofficialChatGPTAsk>>()
+    return data
   }
 
   async unofficialChatGPTAuth(): Promise<UnofficialChatGPTResp> {
     const url = process.env.UNOFFICIAL_CHATGPT_API + '/auth'
-    const resp: AxiosResponse<UnofficialChatGPTResp> = await axios.post(
-      url,
-      null,
-      { httpsAgent: this.httpsAgent },
-    )
-    return resp.data
+    // const { data }: AxiosResponse<UnofficialChatGPTResp> = await axios.post(
+    //   url,
+    //   null,
+    //   {
+    //     httpsAgent: this.httpsAgent,
+    //   },
+    // )
+    const data = await GotClient.post(url).json<UnofficialChatGPTResp>()
+    return data
   }
 
   async unofficialChatGPTHealth(): Promise<UnofficialChatGPTResp> {
     const url = process.env.UNOFFICIAL_CHATGPT_API + '/health'
-    const resp: AxiosResponse<UnofficialChatGPTResp> = await axios.get(url)
-    return resp.data
+    const { data }: AxiosResponse<UnofficialChatGPTResp> = await axios.get(url)
+    // const data = await GotClient.get(url).json<UnofficialChatGPTResp>()
+    return data
   }
 
   async appendUnofficial(

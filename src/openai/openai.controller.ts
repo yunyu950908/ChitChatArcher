@@ -15,6 +15,12 @@ export class OpenaiController {
 
   constructor(private readonly openaiService: OpenaiService) {}
 
+  @Post('unofficial/health')
+  async healthCheck(@Res() res: any) {
+    const resp = await this.openaiService.unofficialChatGPTHealth()
+    res.status(200).json(resp)
+  }
+
   @Post('unofficial/ask')
   async chatWithUnofficial(
     @Body() params: UnofficialChatGPTAsk,
